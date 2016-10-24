@@ -1,16 +1,14 @@
 # echo
 
-API that records and returns requests you send to it.
+API that records, prints and returns requests you send to it.
 
 **It has nothing to do with [Amazon Echo](https://en.wikipedia.org/wiki/Amazon_Echo), [a lazy image loader](https://github.com/toddmotto/echo), [EchoNest](http://the.echonest.com/), or other stuff called `echo`!**
-
-![Echo](./img/echo2.png)
 
 ![Echo](./img/echo.png)
 
 ## When do I need this?
 
-Mostly for prototyping unidirectional data flow over HTTP from your web application to somewhere else. Every request is retrievable by calling `GET /_requests`, so you could use this API also for testing, I guess.
+Mostly for prototyping unidirectional data flow over HTTP from your web application to somewhere else. Every request is retrievable by calling `GET /_requests` (and clearable with `DELETE /_requests`), so you could use this API also for testing, I guess.
 
 Since there is no support for mocking the response body, this API is unsuitable when your web application depends on it. (This includes every "typical" web app where you create a resource, the server answers with the newly created resource and the app renders something based on that.) For testing it's in that case better to look for something like [wiremock](http://wiremock.org/) or [mountebank](http://www.mbtest.org/) as you'll want the server to return error statuses for requests it doesn't expect.
 

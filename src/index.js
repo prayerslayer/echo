@@ -1,7 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const color = require('colors')
-const RECORDED_REQUESTS = []
 const SUPPORTED_VERBS = [
   'GET',
   'POST',
@@ -10,6 +9,7 @@ const SUPPORTED_VERBS = [
   'OPTIONS',
   'DELETE',
 ]
+let RECORDED_REQUESTS = []
 
 const app = express()
 app.use(bodyParser.json())
@@ -18,19 +18,21 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
-// converts json object to urlencoded string (key=value)
-function toUrlencoded(json) {
-  return Object
-    .keys(json)
-    .reduce((agg, key) => agg + `${key}=${json[key]}
-`, '')
+// converts json object to a string
+// takes function that will be passed key and value and is expected to return a string
+function stringifyJSONForPrinting(formatFn) {
+  return function(json) {
+    return Object
+      .keys(json)
+      .reduce((agg, key, i, arr) => agg + `${formatFn(key, json[key])}${i < arr.length - 1 ? '\n' : ''}`, '')
+  }
 }
 
-function headers(headers) {
-  return Object
-    .keys(headers)
-    .reduce((agg, key, i, arr) => agg + `  ${key}: ${headers[key]}${i < arr.length - 1 ? '\n' : ''}`, '')
-}
+// converts json object to urlencoded string (key=value)
+const toUrlencoded = stringifyJSONForPrinting((key, val) => `${key}=${val}`)
+
+// converts header object into a string (key: value)
+const headers = stringifyJSONForPrinting((key, val) => `  ${color.dim(key)}: ${val}`)
 
 // returns proper stringified version of request body depending on content type
 function body(req) {
@@ -63,24 +65,22 @@ function colorizeMethod(method) {
     'OPTIONS': 'white',
     'DELETE': 'red',
   }
-  return color[VERB_COLORS[method]](method)
+  const colorForMethod = VERB_COLORS[method] || 'bgBlack'
+  return color[colorForMethod]('● ') + method
 }
 
 // outputs request information to stdout
 // method, timestamp, path, body
 function print(req) {
-  const m = color.bold(colorizeMethod(req.method))
+  const m = colorizeMethod(req.method)
   const h = color.gray(headers(req.headers))
   const p = color.bold(color.white(req.path))
-  //const now = color.yellow(req.timestamp.toISOString())
   console.log(m, p)
-  //console.log(now)
   console.log(h)
   if (req.body) {
     console.log(color.gray(body(req)))
-  } else {
-    console.log()
   }
+  console.log()
 }
 
 // records, prints to stdout and returns the request
@@ -100,9 +100,15 @@ function echo(req, res) {
 }
 
 // endpoint to retrieve all recorded requests
-app.get('/_requests', (req, res) => {
+app.get('/_requests', (_, res) => {
   res.status(200)
     .json(RECORDED_REQUESTS)
+})
+
+// endpoint to clear recorded requests
+app.delete('/_requests', (_, res) => {
+  RECORDED_REQUESTS = []
+  res.status(200)
 })
 
 // register listeners for all supported http verbs
