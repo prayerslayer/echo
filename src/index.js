@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const color = require('colors')
+const cors = require('cors')
 const SUPPORTED_VERBS = [
   'GET',
   'POST',
@@ -12,6 +13,7 @@ const SUPPORTED_VERBS = [
 let RECORDED_REQUESTS = []
 
 const app = express()
+app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.text())
 app.use(bodyParser.urlencoded({
