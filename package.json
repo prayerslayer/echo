@@ -1,0 +1,16 @@
+{
+  "name": "echo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikolaus Piccolotto <prayerslayer@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "colors": "^1.1.2",
+    "express": "^4.14.0"
+  }
+}
